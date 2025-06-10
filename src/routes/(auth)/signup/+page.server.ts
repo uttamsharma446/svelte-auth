@@ -1,6 +1,12 @@
 import { createUser } from "$lib/models/user";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
+export const load: PageServerLoad = async ({ locals }) => {
+  const user = locals.user;
+  if (user) {
+    throw redirect(302, "/news");
+  }
+};
 
 export const actions: Actions = {
   default: async ({ request, cookies }) => {
@@ -8,9 +14,8 @@ export const actions: Actions = {
     const email = data.get("email");
     const name = data.get("name");
     const password = data.get("password");
-    console.log("DATA",data)
     // Verify that we have an email and a password
-    if (!email || !password) {
+    if (!email || !password || !name) {
       return fail(400, {
         error: "Missing email or password",
       });
