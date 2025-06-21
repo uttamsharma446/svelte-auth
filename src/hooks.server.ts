@@ -1,20 +1,17 @@
 import { checkMongoConnection } from "$lib/models/checkMongoConnection";
-import type { Handle } from "@sveltejs/kit";
-import { parse } from "svelte/compiler";
-import jwt from "jsonwebtoken";
 import { getUserById, JWT_SECRET } from "$lib/models/user";
+import type { Handle } from "@sveltejs/kit";
+import jwt from "jsonwebtoken";
 checkMongoConnection();
 
 export const handle: Handle = async ({ event, resolve }) => {
   const { headers } = event.request;
 
   const AuthorizationToken = event.cookies.get("AuthorizationToken");
-  // console.log("AUTHORIZATION_TOKEN", AuthorizationToken);
   if (!AuthorizationToken) {
     event.locals.user = null;
   } else {
     const withoutBearer = AuthorizationToken.split(" ")[1];
-    console.log(withoutBearer);
     const claims: any = jwt.verify(withoutBearer, JWT_SECRET);
     if (claims) {
       const userId = claims.id;
